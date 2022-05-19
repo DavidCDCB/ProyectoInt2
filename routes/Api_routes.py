@@ -13,7 +13,7 @@ def save_user():
 @api_routes.route('/api', methods=['GET'])
 def get_users():
 	print("ok")
-
+	file_to_save = open('./routes/decoded_image.png', 'rb')
 	obj = {
 		"masage": "ok"
 	}

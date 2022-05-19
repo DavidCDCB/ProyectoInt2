@@ -1,5 +1,4 @@
 #Funcion para crear calculadora
-from email.mime import image
 import cv2
 import numpy as np
 
@@ -76,8 +75,7 @@ def detectarForma(imagen):
                     found = True
                     cv2.imwrite("recorte.jpg", cropped_contour)
                 #imagen = cv2.imread("recorte.jpg")
-                #mostrarTexto(f"{x} {y} {w} {h}", imagen, figuraActual)
-
+                #mostrarTexto(f"{x+w} {y+h}", cropped_contour, figuraActual)
     return cropped_contour
 
 
