@@ -8,7 +8,7 @@ ancho=28
 alto=28
 
 miModeloCNN=Prediccion("models/modeloA.h5",ancho,alto)
-imagen=cv2.imread("dataset/test/5/5_4.jpg")
+imagen=cv2.imread("./ModelFactory/dataset/test/5/5_4.jpg")
 
 claseResultado=miModeloCNN.predecir(imagen)
 print("La imagen cargada es ",clases[claseResultado])
