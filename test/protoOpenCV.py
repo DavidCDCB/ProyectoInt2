@@ -3,18 +3,18 @@ import cv2
 import numpy as np
 
 nameWindow = "Calculadora"
-found = False
-size_image = 600
+found = False # Bandera que indica si se encontró la figura
+size_image = 1000 # Tamaño maximo en pixeles
 
 def nothing(x):
     pass
 
 def constructorVentana():
     cv2.namedWindow(nameWindow)
-    cv2.createTrackbar("min", nameWindow,0,255, nothing)
-    cv2.createTrackbar("max", nameWindow, 100, 255, nothing)
+    cv2.createTrackbar("min", nameWindow,50,255, nothing)
+    cv2.createTrackbar("max", nameWindow, 255, 255, nothing)
     cv2.createTrackbar("kernel", nameWindow, 12, 100, nothing)
-    cv2.createTrackbar("areaMin", nameWindow, 10000, 10000, nothing)
+    cv2.createTrackbar("areaMin", nameWindow, 4000, 10000, nothing)
 
 #Calcula el área o tamaño de las figuras
 #Un cálculo basado en pixeles
@@ -52,13 +52,12 @@ def detectarForma(imagen):
     areas = calcularAreas(figuras)
     areaMin = cv2.getTrackbarPos("areaMin", nameWindow)
 
-
-    
     #A continuación hacemos un análisis de cada uno de los elementos que hay en
     #la lista de figuras y también si es una figura relevante
     i = 0
     cropped_contour = bordes
     for figuraActual in figuras:
+        # Mientras no se encuentre la figura muestra solo la vista de contornos
         if(found == False):
             cropped_contour = bordes
 
@@ -68,9 +67,13 @@ def detectarForma(imagen):
             #y dependiendo de estos se puede determinarque figura es
             vertices = cv2.approxPolyDP(figuraActual, 0.05 * cv2.arcLength(figuraActual, True), True)
             
+            # Por cada area detectada solo usa la de 4 vertices
             if len(vertices) == 4:
+                # A la figura que tiene un area determinada se le caputa sus coordenadas y dimensiones
                 x,y,w,h = cv2.boundingRect(figuraActual)
+                # Se hace el recorte
                 cropped_contour = imagen[y:y+h, x:x+w]
+                # Si el recorte tiene una determinada caracteristica lo almacena
                 if(y+h < size_image and x+w < size_image):
                     found = True
                     cv2.imwrite("recorte.jpg", cropped_contour)
