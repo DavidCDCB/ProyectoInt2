@@ -84,6 +84,8 @@ video = cv2.VideoCapture(0)
 bandera = True
 constructorVentana()
 
+number_image = 1
+
 while bandera:
     _,imagen = video.read() #El guión bajo es para desechar otro parámetro que devuelve el .read
     imagen = detectarForma(imagen)
@@ -95,6 +97,10 @@ while bandera:
     k = cv2.waitKey(5) & 0xFF
     if k == 27:
         bandera = False
+
+    if k == ord('e'):
+        cv2.imwrite(f"./images/recorte{number_image}.jpg", imagen)
+        number_image += 1 
 
 #Cuando se termine el ciclo se debe cerrar el video y además cerrar las ventanas
 video.release()
