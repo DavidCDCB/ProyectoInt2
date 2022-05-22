@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request
 import json
 import requests
 import base64
+import os
 
 api_routes = Blueprint('api_routes', __name__)
 
@@ -13,6 +14,12 @@ def decode_image(dir,image_content):
 
 @api_routes.route('/api', methods=['POST'])
 def save_user():
+	# Recorre la carpeta de imagenes para eliminar lo anterior
+	test = os.listdir("./imagesFromClient/")
+	for item in test:
+		if item.endswith(".jpg"):
+			os.remove(os.path.join("./imagesFromClient/", item))
+
 	request_body = request.json
 	json_dict = json.loads(request_body)
 	for key in json_dict:

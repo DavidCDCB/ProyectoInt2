@@ -2,6 +2,7 @@
 #Imports para openCV
 import cv2
 import numpy as np
+import os
 
 #Imports para los métodos que codifican las imágenes
 #y las envían al servidor en formato json
@@ -88,6 +89,11 @@ def detectarForma(imagen):
                 #mostrarTexto(f"{x+w} {y+h}", cropped_contour, figuraActual)
     return cropped_contour
 
+# Recorre la carpeta de imagenes para eliminar lo anterior
+test = os.listdir("./images/")
+for item in test:
+    if item.endswith(".jpg"):
+        os.remove(os.path.join("./images/", item))
 
 #Apertura de la cámara
 def abrirCamara():
@@ -111,13 +117,15 @@ def abrirCamara():
 
         if k == ord('e'):
             cv2.imwrite(f"./images/recorte{number_image}.jpg", imagen)
-            number_image += 1 
+            number_image += 1
+        
+        if k == ord('s'):
+            cei.codificarEnviar(number_image)
 
     #Cuando se termine el ciclo se debe cerrar el video y además cerrar las ventanas
     video.release()
     cv2.destroyAllWindows()
-
-    cei.codificarEnviar(number_image)
+    
 
 #Aquí termina el código que captura las imágenes
 
