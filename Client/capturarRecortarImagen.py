@@ -1,7 +1,14 @@
-#Funcion para crear calculadora
+
+#Imports para openCV
 import cv2
 import numpy as np
 
+#Imports para los métodos que codifican las imágenes
+#y las envían al servidor en formato json
+import codificarEnviarImagen as cei
+
+
+#Código para tomar las imagenes 
 nameWindow = "Calculadora"
 found = False # Bandera que indica si se encontró la figura
 size_image = 1000 # Tamaño maximo en pixeles
@@ -83,28 +90,34 @@ def detectarForma(imagen):
 
 
 #Apertura de la cámara
-video = cv2.VideoCapture(2)
-bandera = True
-constructorVentana()
+def abrirCamara():
+    video = cv2.VideoCapture(0)
+    bandera = True
+    constructorVentana()
 
-number_image = 1
+    number_image = 1
 
-while bandera:
-    _,imagen = video.read() #El guión bajo es para desechar otro parámetro que devuelve el .read
-    imagen = detectarForma(imagen)
-    if(len(imagen) != None):
-        cv2.imshow("imagen", imagen)
+    while bandera:
+        _,imagen = video.read() #El guión bajo es para desechar otro parámetro que devuelve el .read
+        imagen = detectarForma(imagen)
+        if(len(imagen) != None):
+            cv2.imshow("imagen", imagen)
 
-    #parar el programa
-    #detectamos la tecla que el usuario presione para eso
-    k = cv2.waitKey(5) & 0xFF
-    if k == 27:
-        bandera = False
+        #parar el programa
+        #detectamos la tecla que el usuario presione para eso
+        k = cv2.waitKey(5) & 0xFF
+        if k == 27:
+            bandera = False
 
-    if k == ord('e'):
-        cv2.imwrite(f"./images/recorte{number_image}.jpg", imagen)
-        number_image += 1 
+        if k == ord('e'):
+            cv2.imwrite(f"./images/recorte{number_image}.jpg", imagen)
+            number_image += 1 
 
-#Cuando se termine el ciclo se debe cerrar el video y además cerrar las ventanas
-video.release()
-cv2.destroyAllWindows()
+    #Cuando se termine el ciclo se debe cerrar el video y además cerrar las ventanas
+    video.release()
+    cv2.destroyAllWindows()
+
+    cei.codificarEnviar(number_image)
+
+#Aquí termina el código que captura las imágenes
+

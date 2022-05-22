@@ -14,9 +14,12 @@ def decode_image(dir,image_content):
 @api_routes.route('/api', methods=['POST'])
 def save_user():
 	request_body = request.json
-	image_id = request_body['id']
-	image_content = request_body['image']
-	decode_image(f'./imagesFromClient/decoded_image{image_id}.jpg',image_content)
+	json_dict = json.loads(request_body)
+	for key in json_dict:
+		print(key['id'])
+		image_id = key['id']
+		image_content = key['image']
+		decode_image(f'./imagesFromClient/decoded_image{image_id}.jpg',image_content)
 	return request_body
 
 @api_routes.route('/api', methods=['GET'])
