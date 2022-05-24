@@ -3,7 +3,6 @@ import requests
 import base64
 import json
 
-
 URL_API = "http://localhost:7000/api"
 
 #Método para codificar imágen en base 64
@@ -20,25 +19,19 @@ def encode_image(dir)->str:
 #3. Se envía la petición al servidor
 def codificarEnviar(number_image):
     imagenes = []
-    #1.
+    request_object = {
+        "id_client":1,
+        "models":[]
+    }
+    
     for n in range(1, number_image):
         obj_image = {
             "id":n,
             "image": encode_image("./images/recorte{}.jpg".format(n))
             #"image": "imagen simulada{}".format(n)
         }
-
         imagenes.append(obj_image)
 
-    #2.
-    jsonImage = json.dumps(imagenes)
-
-
-    #3.
-    data  = requests.post(URL_API, json=jsonImage)
-    #print(data.json())
-    #print(imagenes)
-
-
-    #data = requests.get(URL_API)
-    #print(data.json())
+    request_object["images"] = imagenes
+    data  = requests.post(URL_API, json=request_object)
+    print(json.dumps(data.json(), indent=4, sort_keys=True))

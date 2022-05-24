@@ -1,4 +1,4 @@
-from flask import Blueprint, jsonify, request
+from flask import Blueprint, Response, request
 import json
 import requests
 import base64
@@ -12,6 +12,26 @@ def decode_image(dir,image_content):
 	decoded_image_data = base64.decodebytes(base64_img_bytes)
 	file_to_save.write(decoded_image_data)
 
+def create_response(num_images):
+	response = {
+		"state":"success",
+		"results":[
+			{
+				"model_id":1,
+				"results":[]
+			}
+		]
+	}
+
+	for num in range(1, num_images+1):
+		# ...
+		response["results"][0]["results"].append({
+			"class":0,
+			"idImagen":num,
+		})
+
+	return response
+
 @api_routes.route('/api', methods=['POST'])
 def save_user():
 	# Recorre la carpeta de imagenes para eliminar lo anterior
@@ -21,13 +41,24 @@ def save_user():
 			os.remove(os.path.join("./imagesFromClient/", item))
 
 	request_body = request.json
-	json_dict = json.loads(request_body)
-	for key in json_dict:
+	for key in request_body["images"]:
 		print(key['id'])
 		image_id = key['id']
 		image_content = key['image']
 		decode_image(f'./imagesFromClient/decoded_image{image_id}.jpg',image_content)
-	return request_body
+
+	try:
+		response = create_response(len(request_body["images"]))
+		return Response(json.dumps(response),status=200,mimetype='application/json')
+	except Exception as e:
+		return Response(
+			json.dumps({
+				"state":"error",
+				"message":str(e)
+			}),
+			status=400,
+			mimetype='application/json'
+		)
 
 @api_routes.route('/api', methods=['GET'])
 def get_users():

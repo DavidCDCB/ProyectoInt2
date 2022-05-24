@@ -1,16 +1,10 @@
-
-#Imports para openCV
 import cv2
 import numpy as np
 import os
-
-#Imports para los métodos que codifican las imágenes
-#y las envían al servidor en formato json
 import codificarEnviarImagen as cei
 
-
 #Código para tomar las imagenes 
-nameWindow = "Calculadora"
+nameWindow = "Captura de imagen"
 found = False # Bandera que indica si se encontró la figura
 size_image = 1000 # Tamaño maximo en pixeles
 
@@ -63,12 +57,8 @@ def detectarForma(imagen):
     #A continuación hacemos un análisis de cada uno de los elementos que hay en
     #la lista de figuras y también si es una figura relevante
     i = 0
-    cropped_contour = bordes
+    cropped_contour = bordes # Mientras no se encuentre la figura muestra solo la vista de contornos
     for figuraActual in figuras:
-        # Mientras no se encuentre la figura muestra solo la vista de contornos
-        if(found == False):
-            cropped_contour = bordes
-
         if areas[i] >= areaMin:
             i = i+1
             #Esta operación toma la figura y analiza la cantidad de vértices
@@ -84,28 +74,33 @@ def detectarForma(imagen):
                 # Si el recorte tiene una determinada caracteristica lo almacena
                 if(y+h < size_image and x+w < size_image):
                     found = True
-                    cv2.imwrite("recorte.jpg", cropped_contour)
+                    #cv2.imwrite("recorte.jpg", cropped_contour)
                 #imagen = cv2.imread("recorte.jpg")
                 #mostrarTexto(f"{x+w} {y+h}", cropped_contour, figuraActual)
     return cropped_contour
 
-# Recorre la carpeta de imagenes para eliminar lo anterior
-test = os.listdir("./images/")
-for item in test:
-    if item.endswith(".jpg"):
-        os.remove(os.path.join("./images/", item))
-
 #Apertura de la cámara
 def abrirCamara():
-    video = cv2.VideoCapture(0)
+    global found
+    video = cv2.VideoCapture(1)
+    roi = False
     bandera = True
+
+    # Recorre la carpeta de imagenes para eliminar lo anterior
+    test = os.listdir("./images/")
+    for item in test:
+        if item.endswith(".jpg"):
+            os.remove(os.path.join("./images/", item))
     constructorVentana()
 
     number_image = 1
-
     while bandera:
         _,imagen = video.read() #El guión bajo es para desechar otro parámetro que devuelve el .read
-        imagen = detectarForma(imagen)
+        
+        if(roi):
+            found = False
+            imagen = detectarForma(imagen)
+
         if(len(imagen) != None):
             cv2.imshow("imagen", imagen)
 
@@ -115,7 +110,10 @@ def abrirCamara():
         if k == 27:
             bandera = False
 
-        if k == ord('e'):
+        if k == ord('c'):
+            roi = True
+
+        if k == ord('e') and found == True:
             cv2.imwrite(f"./images/recorte{number_image}.jpg", imagen)
             number_image += 1
         
@@ -125,7 +123,3 @@ def abrirCamara():
     #Cuando se termine el ciclo se debe cerrar el video y además cerrar las ventanas
     video.release()
     cv2.destroyAllWindows()
-    
-
-#Aquí termina el código que captura las imágenes
-
