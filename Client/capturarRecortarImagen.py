@@ -114,11 +114,13 @@ def abrirCamara():
             roi = True
 
         if k == ord('e') and found == True:
+            print(f"{number_image} Capturada")
             cv2.imwrite(f"./images/recorte{number_image}.jpg", imagen)
             number_image += 1
         
         if k == ord('s'):
             cei.codificarEnviar(number_image)
+            bandera = False
 
     #Cuando se termine el ciclo se debe cerrar el video y además cerrar las ventanas
     video.release()

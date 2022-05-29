@@ -12,23 +12,23 @@ def decode_image(dir,image_content):
 	decoded_image_data = base64.decodebytes(base64_img_bytes)
 	file_to_save.write(decoded_image_data)
 
-def create_response(num_images):
+def create_response(models,num_images):
 	response = {
 		"state":"success",
-		"results":[
-			{
-				"model_id":1,
-				"results":[]
-			}
-		]
+		"results":[]
 	}
 
-	for num in range(1, num_images+1):
-		# ...
-		response["results"][0]["results"].append({
-			"class":0,
-			"idImagen":num,
+	for m in models:
+		response["results"].append({
+			"model_id":m,
+			"results":[]
 		})
+		for j in range(1, num_images+1):
+			# ...
+			response["results"][models.index(m)]["results"].append({
+				"class":0,
+				"idImagen":j,
+			})
 
 	return response
 
@@ -48,7 +48,8 @@ def save_user():
 		decode_image(f'./imagesFromClient/decoded_image{image_id}.jpg',image_content)
 
 	try:
-		response = create_response(len(request_body["images"]))
+		print(request_body["models"])
+		response = create_response(request_body["models"],len(request_body["images"]))
 		return Response(json.dumps(response),status=200,mimetype='application/json')
 	except Exception as e:
 		return Response(
