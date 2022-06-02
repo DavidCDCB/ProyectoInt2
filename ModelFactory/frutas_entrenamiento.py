@@ -1,19 +1,26 @@
-import tensorflow as tf
-import keras
-import numpy as np
 import cv2
-###Importar componentes de la red neuronal
+import numpy as np
+import pandas as pd
+import seaborn as sb
+import tensorflow as tf
+import matplotlib.pyplot as plt
+
 from keras.models import Sequential
 from keras.layers import InputLayer,Input,Conv2D, MaxPool2D,Reshape,Dense,Flatten
+from sklearn.metrics import classification_report, confusion_matrix
+from sklearn.preprocessing import MinMaxScaler
+from sklearn.model_selection import KFold
+
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 
 def cargarDatos(rutaOrigen,numeroCategorias,limite,ancho,alto):
     imagenesCargadas=[]
     valorEsperado=[]
     for categoria in range(0,numeroCategorias):
+        print(f"Cargando: {categoria}")
         for idImagen in range(0,limite[categoria]):
             ruta=rutaOrigen+str(categoria)+"/"+str(categoria)+"_"+str(idImagen)+".jpg"
-            print(ruta)
             imagen = cv2.imread(ruta)
             imagen = cv2.cvtColor(imagen, cv2.COLOR_BGR2GRAY)
             imagen = cv2.resize(imagen, (ancho, alto))
@@ -27,21 +34,21 @@ def cargarDatos(rutaOrigen,numeroCategorias,limite,ancho,alto):
     valoresEsperados = np.array(valorEsperado)
     return imagenesEntrenamiento, valoresEsperados
 
-ancho=28
-alto=28
-pixeles=ancho*alto
+ancho = 256
+alto = 256
+pixeles = ancho*alto
 #Imagen RGB -->3
-numeroCanales=1
-formaImagen=(ancho,alto,numeroCanales)
-numeroCategorias=10
+numeroCanales = 1
+formaImagen = (ancho,alto,numeroCanales)
+numeroCategorias = 5
 
-cantidaDatosEntrenamiento=[60,60,60,60,60,60,60,60,60,60]
-cantidaDatosPruebas=[20,20,20,20,20,20,20,20,20,20]
+cantidaDatosEntrenamiento = [490 for x in range(5)]
+cantidaDatosPruebas = [160 for x in range(5)] 
 
 #Cargar las imágenes
-imagenes, probabilidades=cargarDatos("dataset/train/",numeroCategorias,cantidaDatosEntrenamiento,ancho,alto)
+imagenes, probabilidades = cargarDatos("dataset/Train/",numeroCategorias,cantidaDatosEntrenamiento,ancho,alto)
 
-
+'''
 model=Sequential()
 #Capa entrada
 model.add(InputLayer(input_shape=(pixeles,)))
@@ -79,3 +86,4 @@ ruta="models/modeloA.h5"
 model.save(ruta)
 # Informe de estructura de la red
 model.summary()
+'''

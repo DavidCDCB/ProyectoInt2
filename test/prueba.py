@@ -7,6 +7,9 @@
 # pip install https://storage.googleapis.com/tensorflow/windows/cpu/tensorflow_cpu-2.5.0-cp38-cp38-win_amd64.whl
 # pip3 install pandas scikit-learn seaborn opencv-python
 
+# http://personal.cimat.mx:8181/~mrivera/cursos/aprendizaje_profundo/nn_multicapa/nn_multicapa.html
+# https://www.ellaberintodefalken.com/2019/10/clasificacion-deep-learning-keras.html
+
 import io
 import keras
 import pandas as pd
@@ -22,6 +25,29 @@ from sklearn.model_selection import KFold
 
 from keras.layers import Dense
 from keras.models import Sequential
+
+
+def view_results(loss_values,val_loss_values,acc_values,val_acc_values):
+    plt.style.use('dark_background')
+    epochs = range(1, len(loss_values) + 1)
+    plt.figure(figsize=(12,12))
+
+    plt.subplot(2,1,1)
+    plt.title('Analisis de costo y exactitud desde el entrenamiento y la validación')
+    plt.plot(epochs, loss_values, 'y', label='Training loss')
+    plt.plot(epochs, val_loss_values, 'g', label='Validation loss')
+    plt.xlabel('Epocas')
+    plt.ylabel('Loss')
+    plt.legend()
+
+    plt.subplot(2,1,2)
+    plt.plot(epochs, acc_values, 'y', label='Training Accuracy')
+    plt.plot(epochs, val_acc_values, 'g', label='Validation accuracy')
+    plt.xlabel('Epocas')
+    plt.ylabel('Accuracy')
+    plt.legend()
+
+    plt.show()
 
 accuracy_fold = []
 loss_fold = []
@@ -70,6 +96,11 @@ for train,test in myFolds.split(X,y):
         validation_data=(X[test], y[test]),
         verbose = 2
     ))
+
+    view_results(resultados[i-1].history["loss"],
+        resultados[i-1].history["val_loss"],
+        resultados[i-1].history["accuracy"],
+        resultados[i-1].history["val_accuracy"])
     
     y_test = y[test]
     y_pred = model.predict(X[test])

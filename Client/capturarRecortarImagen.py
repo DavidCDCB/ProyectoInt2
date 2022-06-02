@@ -48,16 +48,19 @@ def detectarForma(imagen):
     bordes = cv2.dilate(bordes, kernel)
     # cv2.imshow("Bordes", bordes)
 
-    #Detección de la figura, cierre de los polígonos
+    #Detección de la figura, cierre de elos polígonos
     #Las jerarquías son como si hay figuras dentro de otras
-    figuras, jerarquia = cv2.findContours(bordes, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    figuras, jerarquia = cv2.findContours(bordes, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     areas = calcularAreas(figuras)
     areaMin = cv2.getTrackbarPos("areaMin", nameWindow)
+
+    recortes = []
 
     #A continuación hacemos un análisis de cada uno de los elementos que hay en
     #la lista de figuras y también si es una figura relevante
     i = 0
     cropped_contour = bordes # Mientras no se encuentre la figura muestra solo la vista de contornos
+
     for figuraActual in figuras:
         if areas[i] >= areaMin:
             i = i+1
@@ -71,18 +74,32 @@ def detectarForma(imagen):
                 x,y,w,h = cv2.boundingRect(figuraActual)
                 # Se hace el recorte
                 cropped_contour = imagen[y:y+h, x:x+w]
+                
+                recortes.append(cropped_contour)
+
+                cv2.drawContours(imagen, [figuraActual], 0, (0, 0, 255), 2)
                 # Si el recorte tiene una determinada caracteristica lo almacena
                 if(y+h < size_image and x+w < size_image):
                     found = True
+                    
                     #cv2.imwrite("recorte.jpg", cropped_contour)
                 #imagen = cv2.imread("recorte.jpg")
                 #mostrarTexto(f"{x+w} {y+h}", cropped_contour, figuraActual)
-    return cropped_contour
 
+    for i in range(len(recortes)):
+        #print(recortes[i].shape)
+        cv2.imshow(f"ROI {i}", recortes[i])
+
+    if(found):
+        return (imagen,recortes)
+    else:
+        return (imagen, None)
+
+imagen_forma = None
 #Apertura de la cámara
 def abrirCamara():
     global found
-    video = cv2.VideoCapture(1)
+    video = cv2.VideoCapture(0)
     roi = False
     bandera = True
 
@@ -99,10 +116,14 @@ def abrirCamara():
         
         if(roi):
             found = False
-            imagen = detectarForma(imagen)
+            imagen_forma = detectarForma(imagen)
 
-        if(len(imagen) != None):
-            cv2.imshow("imagen", imagen)
+        if(found):
+            if(len(imagen_forma[0]) != None):
+                cv2.imshow("imagen", imagen_forma[0])
+        else:
+            if(len(imagen) != None):
+                cv2.imshow("imagen", imagen)
 
         #parar el programa
         #detectamos la tecla que el usuario presione para eso
@@ -113,10 +134,14 @@ def abrirCamara():
         if k == ord('c'):
             roi = True
 
-        if k == ord('e') and found == True:
+        if k == ord('e') and found == True and imagen_forma[1] != None:
             print(f"{number_image} Capturada")
-            cv2.imwrite(f"./images/recorte{number_image}.jpg", imagen)
+            #cv2.imwrite(f"./images/recorte{number_image}.jpg", imagen)
+            cv2.imwrite(f"./images/recorte{number_image}.jpg", imagen_forma[1][0])
             number_image += 1
+            if(len(imagen_forma[1]) > 1):
+                cv2.imwrite(f"./images/recorte{number_image}.jpg", imagen_forma[1][1])
+                number_image += 1
         
         if k == ord('s'):
             cei.codificarEnviar(number_image)

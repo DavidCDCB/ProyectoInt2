@@ -74,16 +74,16 @@ def detectarForma(imagen):
                 # Se hace el recorte
                 cropped_contour = imagen[y:y+h, x:x+w]
                 # Si el recorte tiene una determinada caracteristica lo almacena
-                if(y+h < size_image and x+w < size_image):
-                    found = True
-                    cv2.imwrite("recorte.jpg", cropped_contour)
+                
+                cv2.drawContours(imagen, [figuraActual], 0, (0, 0, 255), 2)
+
                 #imagen = cv2.imread("recorte.jpg")
                 #mostrarTexto(f"{x+w} {y+h}", cropped_contour, figuraActual)
-    return cropped_contour
+    return imagen
 
 
 #Apertura de la cámara
-video = cv2.VideoCapture(2)
+video = cv2.VideoCapture(0)
 bandera = True
 constructorVentana()
 
