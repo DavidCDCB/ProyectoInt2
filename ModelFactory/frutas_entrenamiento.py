@@ -14,9 +14,14 @@ from sklearn.model_selection import KFold
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 
+
+
 def cargarDatos(rutaOrigen,numeroCategorias,limite,ancho,alto):
     imagenesCargadas=[]
     valorEsperado=[]
+    #plt.style.use('dark_background')
+    plt.figure(figsize=(20,20))
+
     for categoria in range(0,numeroCategorias):
         print(f"Cargando: {categoria}")
         for idImagen in range(0,limite[categoria]):
@@ -24,30 +29,62 @@ def cargarDatos(rutaOrigen,numeroCategorias,limite,ancho,alto):
             imagen = cv2.imread(ruta)
             imagen = cv2.cvtColor(imagen, cv2.COLOR_BGR2GRAY)
             imagen = cv2.resize(imagen, (ancho, alto))
+
+            if(idImagen == 0):
+                plt.subplot(5,5,categoria+1)
+                plt.yticks([])
+                plt.xlabel(str(categoria))
+                plt.imshow(imagen,cmap='gray_r')
+
             imagen = imagen.flatten()
             imagen = imagen / 255
             imagenesCargadas.append(imagen)
             probabilidades = np.zeros(numeroCategorias)
             probabilidades[categoria] = 1
             valorEsperado.append(probabilidades)
+
+    
+    plt.show()
     imagenesEntrenamiento = np.array(imagenesCargadas)
     valoresEsperados = np.array(valorEsperado)
+    print(f"{len(imagenesEntrenamiento)} imagenes cargadas")
     return imagenesEntrenamiento, valoresEsperados
+
+
+def view_results(loss_values,val_loss_values,acc_values,val_acc_values):
+    plt.style.use('dark_background')
+    epochs = range(1, len(loss_values) + 1)
+    plt.figure(figsize=(12,12))
+
+    plt.subplot(2,1,1)
+    plt.title('Analisis de costo y exactitud desde el entrenamiento y la validación')
+    plt.plot(epochs, loss_values, 'y', label='Training loss')
+    plt.plot(epochs, val_loss_values, 'g', label='Validation loss')
+    plt.xlabel('Epocas')
+    plt.ylabel('Loss')
+    plt.legend()
+
+    plt.subplot(2,1,2)
+    plt.plot(epochs, acc_values, 'y', label='Training Accuracy')
+    plt.plot(epochs, val_acc_values, 'g', label='Validation accuracy')
+    plt.xlabel('Epocas')
+    plt.ylabel('Accuracy')
+    plt.legend()
+
+    plt.show()
+
 
 ancho = 256
 alto = 256
 pixeles = ancho*alto
-#Imagen RGB -->3
 numeroCanales = 1
 formaImagen = (ancho,alto,numeroCanales)
 numeroCategorias = 5
 
 cantidaDatosEntrenamiento = [490 for x in range(5)]
 cantidaDatosPruebas = [160 for x in range(5)] 
-
-#Cargar las imágenes
 imagenes, probabilidades = cargarDatos("dataset/Train/",numeroCategorias,cantidaDatosEntrenamiento,ancho,alto)
-
+imagenesPrueba, probabilidadesPrueba = cargarDatos("dataset/Test/",numeroCategorias,cantidaDatosPruebas,ancho,alto)
 '''
 model=Sequential()
 #Capa entrada

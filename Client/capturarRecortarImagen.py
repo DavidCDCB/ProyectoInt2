@@ -55,12 +55,12 @@ def detectarForma(imagen):
     areaMin = cv2.getTrackbarPos("areaMin", nameWindow)
 
     recortes = []
+    des = 20
 
     #A continuación hacemos un análisis de cada uno de los elementos que hay en
     #la lista de figuras y también si es una figura relevante
     i = 0
     cropped_contour = bordes # Mientras no se encuentre la figura muestra solo la vista de contornos
-
     for figuraActual in figuras:
         if areas[i] >= areaMin:
             i = i+1
@@ -72,9 +72,14 @@ def detectarForma(imagen):
             if len(vertices) == 4:
                 # A la figura que tiene un area determinada se le caputa sus coordenadas y dimensiones
                 x,y,w,h = cv2.boundingRect(figuraActual)
+                
+                if(len(figuras)==1):
+                    x += des
+                    y += des
+                    h -= des*2
+                    w -= des*2
                 # Se hace el recorte
                 cropped_contour = imagen[y:y+h, x:x+w]
-                
                 recortes.append(cropped_contour)
 
                 cv2.drawContours(imagen, [figuraActual], 0, (0, 0, 255), 2)
