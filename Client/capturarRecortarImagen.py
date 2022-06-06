@@ -7,6 +7,7 @@ import codificarEnviarImagen as cei
 nameWindow = "Captura de imagen"
 found = False # Bandera que indica si se encontró la figura
 size_image = 1000 # Tamaño maximo en pixeles
+seleccionadas = [None,None]
 
 def nothing(x):
     pass
@@ -15,7 +16,7 @@ def constructorVentana():
     cv2.namedWindow(nameWindow)
     cv2.createTrackbar("min", nameWindow,50,255, nothing)
     cv2.createTrackbar("max", nameWindow, 255, 255, nothing)
-    cv2.createTrackbar("kernel", nameWindow, 12, 100, nothing)
+    cv2.createTrackbar("kernel", nameWindow, 15, 100, nothing)
     cv2.createTrackbar("areaMin", nameWindow, 4000, 10000, nothing)
 
 #Calcula el área o tamaño de las figuras
@@ -94,11 +95,19 @@ def detectarForma(imagen):
     for i in range(len(recortes)):
         #print(recortes[i].shape)
         cv2.imshow(f"ROI {i}", recortes[i])
+        if(i == 0):
+            cv2.moveWindow(f"ROI {i}", 40,30)
+        else:
+            cv2.moveWindow(f"ROI {i}", 400,30)
 
-    if(found):
-        return (imagen,recortes)
-    else:
-        return (imagen, None)
+    if(len(recortes) == 1):
+        seleccionadas[0] = recortes[0]
+
+    if(len(recortes) == 2):
+        seleccionadas[0] = recortes[0]
+        seleccionadas[1] = recortes[1]
+
+    return (imagen, None)
 
 imagen_forma = None
 #Apertura de la cámara
@@ -121,14 +130,10 @@ def abrirCamara():
         
         if(roi):
             found = False
-            imagen_forma = detectarForma(imagen)
+            detectarForma(imagen)
 
-        if(found):
-            if(len(imagen_forma[0]) != None):
-                cv2.imshow("imagen", imagen_forma[0])
-        else:
-            if(len(imagen) != None):
-                cv2.imshow("imagen", imagen)
+        if(len(imagen) != None):
+            cv2.imshow("imagen", imagen)
 
         #parar el programa
         #detectamos la tecla que el usuario presione para eso
@@ -139,14 +144,19 @@ def abrirCamara():
         if k == ord('c'):
             roi = True
 
-        if k == ord('e') and found == True and imagen_forma[1] != None:
-            print(f"{number_image} Capturada")
+        if k == ord('e'):
+            print(f"Fotos Capturadas")
+            for s in seleccionadas:
+                cv2.imwrite(f"./images/recorte{number_image}.jpg", s)
+                number_image += 1
+
+            '''
             #cv2.imwrite(f"./images/recorte{number_image}.jpg", imagen)
             cv2.imwrite(f"./images/recorte{number_image}.jpg", imagen_forma[1][0])
             number_image += 1
             if(len(imagen_forma[1]) > 1):
                 cv2.imwrite(f"./images/recorte{number_image}.jpg", imagen_forma[1][1])
-                number_image += 1
+                number_image += 1'''
         
         if k == ord('s'):
             cei.codificarEnviar(number_image)
