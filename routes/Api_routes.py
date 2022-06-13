@@ -3,6 +3,9 @@ import json
 import requests
 import base64
 import os
+import time
+
+from Prediccion import  Prediccion as Predict
 
 api_routes = Blueprint('api_routes', __name__)
 
@@ -23,12 +26,20 @@ def create_response(models,num_images):
 			"model_id":m,
 			"results":[]
 		})
+		inicio = time.time()
+		modelo = Predict(f"./ModelFactory/models/modelo{m}.h5",256,256)
+		
 		for j in range(1, num_images+1):
 			# ...
+			
+			categoria = modelo.predecir(f"./imagesFromClient/decoded_image{j}.jpg")
+			
 			response["results"][models.index(m)]["results"].append({
-				"class":0,
+				"class":categoria,
 				"idImagen":j,
 			})
+		fin = time.time()
+		print(f"tiempo de respuesta para{m}: "+str(fin-inicio))
 
 	return response
 

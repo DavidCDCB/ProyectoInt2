@@ -21,7 +21,7 @@ def codificarEnviar(number_image):
     imagenes = []
     request_object = {
         "id_client":1,
-        "models":[1]
+        "models":[1,2,3]
     }
     
     for n in range(1, number_image):

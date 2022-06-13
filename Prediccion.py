@@ -3,12 +3,16 @@ import numpy as np
 import cv2
 
 class Prediccion():
+    ancho = 0
+    alto = 0
+    frutas = ["Manzana", "Pera", "Banano", "Limon", "Mango"]
     def __init__(self,ruta,ancho,alto):
-        self.modelo=load_model(ruta)
-        self.alto=alto
-        self.ancho=ancho
+        self.modelo = load_model(ruta)
+        self.alto = alto
+        self.ancho = ancho
 
     def predecir(self,imagen):
+        imagen = cv2.imread(imagen)
         imagen = cv2.cvtColor(imagen, cv2.COLOR_BGR2GRAY)
         imagen = cv2.resize(imagen, (self.ancho, self.alto))
         imagen = imagen.flatten()
@@ -20,4 +24,4 @@ class Prediccion():
         predicciones=self.modelo.predict(x=imagenesCargadasNPA)
         print("Predicciones=",predicciones)
         clasesMayores=np.argmax(predicciones,axis=1)
-        return clasesMayores[0]
+        return self.frutas[clasesMayores[0]]

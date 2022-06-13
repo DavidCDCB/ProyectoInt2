@@ -103,9 +103,6 @@ def detectarForma(imagen):
     if(len(recortes) == 1):
         seleccionadas[0] = recortes[0]
 
-    if(len(recortes) == 2):
-        seleccionadas[0] = recortes[0]
-        seleccionadas[1] = recortes[1]
 
     return (imagen, None)
 
@@ -113,7 +110,7 @@ imagen_forma = None
 #Apertura de la cámara
 def abrirCamara():
     global found
-    video = cv2.VideoCapture(0)
+    video = cv2.VideoCapture(2)
     roi = False
     bandera = True
 
@@ -146,9 +143,9 @@ def abrirCamara():
 
         if k == ord('e'):
             print(f"Fotos Capturadas")
-            for s in seleccionadas:
-                cv2.imwrite(f"./images/recorte{number_image}.jpg", s)
-                number_image += 1
+
+            cv2.imwrite(f"./images/recorte{number_image}.jpg", seleccionadas[0])
+            number_image += 1
 
             '''
             #cv2.imwrite(f"./images/recorte{number_image}.jpg", imagen)

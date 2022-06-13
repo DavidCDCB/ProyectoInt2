@@ -2,13 +2,17 @@ import cv2
 import numpy as np
 import os
 from Prediccion import  Prediccion
+import time
+
+
 
 #Código para tomar las imagenes 
 nameWindow = "Captura de imagen"
 found = False # Bandera que indica si se encontró la figura
 size_image = 1000 # Tamaño maximo en pixeles
 seleccionadas = [None,None]
-modelo = Prediccion("./models/modelo1C.h5",128,128)
+modelo = Prediccion("./models/modelo3_1C.h5",128,128)
+
 
 def nothing(x):
     pass
@@ -114,11 +118,11 @@ imagen_forma = None
 #Apertura de la cámara
 def abrirCamara():
     global found
-    video = cv2.VideoCapture(0)
+    video = cv2.VideoCapture(2)
     roi = False
     bandera = True
     resultado = 0
-
+    acumulado = 0
     # Recorre la carpeta de imagenes para eliminar lo anterior
     test = os.listdir("./images/")
     for item in test:
@@ -134,7 +138,8 @@ def abrirCamara():
             detectarForma(imagen)
 
         if(len(imagen) != None):
-            mostrarTexto(f"Resultado:{resultado}", imagen)
+            if(roi == True):
+                mostrarTexto(f"Resultado:{resultado}, Acumulado:{acumulado}", imagen)       
             cv2.imshow("imagen", imagen)
 
         #parar el programa
@@ -153,9 +158,22 @@ def abrirCamara():
                 cv2.imwrite(f"./images/recorte{number_image}.jpg", s)
                 number_image += 1
         
-        if k == ord('s'):
+        if k == ord('p'):
+            inicio = time.time()
             categoria = modelo.predecir("./images/recorte1.jpg")
-            resultado = categoria
+            resultado1 = categoria
+            categoria2 = modelo.predecir("./images/recorte2.jpg")
+            resultado2 = categoria2
+             # -------------
+            fin = time.time()
+            resultado = resultado1 + resultado2
+            acumulado += resultado
+            print("la carta 1 es: "+str(resultado1))
+            print("la carta 2 es: "+str(resultado2))
+            print("acumulado: "+str(acumulado))
+
+           
+            print("tiempo de respuesta: "+str(fin-inicio))
     #Cuando se termine el ciclo se debe cerrar el video y además cerrar las ventanas
     video.release()
     cv2.destroyAllWindows()
