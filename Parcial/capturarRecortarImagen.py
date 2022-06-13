@@ -1,13 +1,14 @@
 import cv2
 import numpy as np
 import os
-import codificarEnviarImagen as cei
+from Prediccion import  Prediccion
 
 #Código para tomar las imagenes 
 nameWindow = "Captura de imagen"
 found = False # Bandera que indica si se encontró la figura
 size_image = 1000 # Tamaño maximo en pixeles
-seleccionadas = [None]
+seleccionadas = [None,None]
+modelo = Prediccion("./models/modelo1C.h5",128,128)
 
 def nothing(x):
     pass
@@ -27,9 +28,8 @@ def calcularAreas(figuras):
         areas.append(cv2.contourArea(figuraActual))
     return areas
 
-def mostrarTexto(mensaje, imagen, figuraActual):
-    cv2.putText(imagen, mensaje, (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
-    cv2.drawContours(imagen, [figuraActual], 0, (0, 0, 255), 2)
+def mostrarTexto(mensaje, imagen):
+    cv2.putText(imagen, mensaje, (10, 450), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2, cv2.LINE_AA)
 
 def detectarForma(imagen):
     global found
@@ -83,7 +83,7 @@ def detectarForma(imagen):
                 cropped_contour = imagen[y:y+h, x:x+w]
                 recortes.append(cropped_contour)
 
-                cv2.drawContours(imagen, [figuraActual], 0, (0, 0, 255), 2)
+                #cv2.drawContours(imagen, [figuraActual], 0, (0, 0, 255), 2)
                 # Si el recorte tiene una determinada caracteristica lo almacena
                 if(y+h < size_image and x+w < size_image):
                     found = True
@@ -109,6 +109,7 @@ def detectarForma(imagen):
 
     return (imagen, None)
 
+
 imagen_forma = None
 #Apertura de la cámara
 def abrirCamara():
@@ -116,6 +117,7 @@ def abrirCamara():
     video = cv2.VideoCapture(0)
     roi = False
     bandera = True
+    resultado = 0
 
     # Recorre la carpeta de imagenes para eliminar lo anterior
     test = os.listdir("./images/")
@@ -124,7 +126,6 @@ def abrirCamara():
             os.remove(os.path.join("./images/", item))
     constructorVentana()
 
-    number_image = 1
     while bandera:
         _,imagen = video.read() #El guión bajo es para desechar otro parámetro que devuelve el .read
         
@@ -133,6 +134,7 @@ def abrirCamara():
             detectarForma(imagen)
 
         if(len(imagen) != None):
+            mostrarTexto(f"Resultado:{resultado}", imagen)
             cv2.imshow("imagen", imagen)
 
         #parar el programa
@@ -145,23 +147,15 @@ def abrirCamara():
             roi = True
 
         if k == ord('e'):
+            number_image = 1
             print(f"Fotos Capturadas")
             for s in seleccionadas:
                 cv2.imwrite(f"./images/recorte{number_image}.jpg", s)
                 number_image += 1
-
-            '''
-            #cv2.imwrite(f"./images/recorte{number_image}.jpg", imagen)
-            cv2.imwrite(f"./images/recorte{number_image}.jpg", imagen_forma[1][0])
-            number_image += 1
-            if(len(imagen_forma[1]) > 1):
-                cv2.imwrite(f"./images/recorte{number_image}.jpg", imagen_forma[1][1])
-                number_image += 1'''
         
         if k == ord('s'):
-            cei.codificarEnviar(number_image)
-            bandera = False
-
+            categoria = modelo.predecir("./images/recorte1.jpg")
+            resultado = categoria
     #Cuando se termine el ciclo se debe cerrar el video y además cerrar las ventanas
     video.release()
     cv2.destroyAllWindows()
