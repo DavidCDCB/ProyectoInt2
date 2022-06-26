@@ -83,7 +83,7 @@ def detectarForma(imagen):
                 cropped_contour = imagen[y:y+h, x:x+w]
                 recortes.append(cropped_contour)
 
-                cv2.drawContours(imagen, [figuraActual], 0, (0, 0, 255), 2)
+                #cv2.drawContours(imagen, [figuraActual], 0, (0, 0, 255), 2)
                 # Si el recorte tiene una determinada caracteristica lo almacena
                 if(y+h < size_image and x+w < size_image):
                     found = True
@@ -97,8 +97,6 @@ def detectarForma(imagen):
         cv2.imshow(f"ROI {i}", recortes[i])
         if(i == 0):
             cv2.moveWindow(f"ROI {i}", 40,30)
-        else:
-            cv2.moveWindow(f"ROI {i}", 400,30)
 
     if(len(recortes) == 1):
         seleccionadas[0] = recortes[0]
@@ -110,7 +108,7 @@ imagen_forma = None
 #Apertura de la cámara
 def abrirCamara():
     global found
-    video = cv2.VideoCapture(2)
+    video = cv2.VideoCapture(0)
     roi = False
     bandera = True
 

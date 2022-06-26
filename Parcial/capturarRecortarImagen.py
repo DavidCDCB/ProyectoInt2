@@ -4,14 +4,10 @@ import os
 from Prediccion import  Prediccion
 import time
 
-
-
-#Código para tomar las imagenes 
 nameWindow = "Captura de imagen"
 found = False # Bandera que indica si se encontró la figura
 size_image = 1000 # Tamaño maximo en pixeles
 seleccionadas = [None,None]
-modelo = Prediccion("./models/modelo3_1C.h5",128,128)
 
 
 def nothing(x):
@@ -19,6 +15,7 @@ def nothing(x):
 
 def constructorVentana():
     cv2.namedWindow(nameWindow)
+    cv2.createTrackbar("Modelo #", nameWindow,1,3, nothing)
     cv2.createTrackbar("min", nameWindow,50,255, nothing)
     cv2.createTrackbar("max", nameWindow, 255, 255, nothing)
     cv2.createTrackbar("kernel", nameWindow, 15, 100, nothing)
@@ -118,7 +115,7 @@ imagen_forma = None
 #Apertura de la cámara
 def abrirCamara():
     global found
-    video = cv2.VideoCapture(2)
+    video = cv2.VideoCapture(0)
     roi = False
     bandera = True
     resultado = 0
@@ -129,6 +126,7 @@ def abrirCamara():
         if item.endswith(".jpg"):
             os.remove(os.path.join("./images/", item))
     constructorVentana()
+    cv2.moveWindow("Captura de imagen", 800,0) 
 
     while bandera:
         _,imagen = video.read() #El guión bajo es para desechar otro parámetro que devuelve el .read
@@ -139,7 +137,8 @@ def abrirCamara():
 
         if(len(imagen) != None):
             if(roi == True):
-                mostrarTexto(f"Resultado:{resultado}, Acumulado:{acumulado}", imagen)       
+                mostrarTexto(f"Resultado:{resultado}, Acumulado:{acumulado}", imagen)    
+                cv2.moveWindow("imagen", 600,400)   
             cv2.imshow("imagen", imagen)
 
         #parar el programa
@@ -160,19 +159,16 @@ def abrirCamara():
         
         if k == ord('p'):
             inicio = time.time()
+            numero_modelo = cv2.getTrackbarPos("Modelo #", nameWindow)
+            modelo = Prediccion(f"./models/modelo{numero_modelo}C.h5",128,128)
             categoria = modelo.predecir("./images/recorte1.jpg")
-            resultado1 = categoria
             categoria2 = modelo.predecir("./images/recorte2.jpg")
-            resultado2 = categoria2
-             # -------------
             fin = time.time()
-            resultado = resultado1 + resultado2
+            resultado = categoria + categoria2
             acumulado += resultado
-            print("la carta 1 es: "+str(resultado1))
-            print("la carta 2 es: "+str(resultado2))
+            print("la carta 1 es: "+str(categoria))
+            print("la carta 2 es: "+str(categoria2))
             print("acumulado: "+str(acumulado))
-
-           
             print("tiempo de respuesta: "+str(fin-inicio))
     #Cuando se termine el ciclo se debe cerrar el video y además cerrar las ventanas
     video.release()
